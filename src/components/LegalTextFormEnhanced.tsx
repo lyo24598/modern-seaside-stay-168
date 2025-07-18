@@ -247,9 +247,12 @@ export function LegalTextFormEnhanced({
     
     // S'assurer qu'un type est sélectionné automatiquement si détecté
     if (formToUse && !selectedTextType) {
-      console.log('🎯 [LegalTextForm] Sélection automatique du type de formulaire:', formToUse.id);
-      setSelectedTextType(formToUse.id);
+      console.log('🎯 [LegalTextForm] Sélection automatique du type de formulaire:', formToUse.type);
+      setSelectedTextType(formToUse.type);
     }
+    
+    // Forcer la mise à jour des données du formulaire
+    console.log('🔄 [LegalTextForm] Forçage de la mise à jour avec les données complètes:', completeFormData);
     
     // Notification à l'utilisateur et redirection automatique vers le formulaire
     const filledFieldsCount = Object.values(completeFormData).filter(value => value && value !== '').length;
