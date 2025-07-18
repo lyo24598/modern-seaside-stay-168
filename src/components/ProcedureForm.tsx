@@ -261,15 +261,20 @@ export function ProcedureForm({ onClose, onSubmit, ocrData }: ProcedureFormProps
       value && value !== '' && !(Array.isArray(value) && value.length === 0)
     ).length;
     
+    console.log('✅ [ProcedureForm] Formulaire rempli avec', Object.keys(completeFormData).length, 'champs');
+    console.log('📋 [ProcedureForm] Données du formulaire final:', completeFormData);
+    console.log('📊 [ProcedureForm] Nombre de champs remplis:', filledFieldsCount);
+    
     toast({
       title: "Formulaire rempli par OCR",
       description: `${filledFieldsCount} champs ont été remplis automatiquement. Redirection vers le formulaire...`,
     });
     
-    // Redirection automatique vers l'onglet formulaire après un court délai
+    // Redirection vers l'onglet formulaire avec un petit délai pour permettre aux données de se propager
+    console.log('🔄 [ProcedureForm] Basculement vers le mode manuel...');
     setTimeout(() => {
       setInputMethod('manual'); // Basculer vers le mode manuel pour afficher le formulaire
-    }, 1500);
+    }, 500);
   };
 
   const handleAutoFill = () => {

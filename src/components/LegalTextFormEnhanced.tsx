@@ -245,20 +245,28 @@ export function LegalTextFormEnhanced({
     // Mise à jour du formulaire avec toutes les données
     setFormData(prev => ({ ...prev, ...completeFormData }));
     
-    console.log('✅ [LegalTextForm] Formulaire rempli avec', Object.keys(completeFormData).length, 'champs');
-    console.log('📋 [LegalTextForm] Données du formulaire final:', completeFormData);
+    // S'assurer qu'un type est sélectionné automatiquement si détecté
+    if (formToUse && !selectedTextType) {
+      console.log('🎯 [LegalTextForm] Sélection automatique du type de formulaire:', formToUse.id);
+      setSelectedTextType(formToUse.id);
+    }
     
     // Notification à l'utilisateur et redirection automatique vers le formulaire
     const filledFieldsCount = Object.values(completeFormData).filter(value => value && value !== '').length;
+    console.log('✅ [LegalTextForm] Formulaire rempli avec', Object.keys(completeFormData).length, 'champs');
+    console.log('📋 [LegalTextForm] Données du formulaire final:', completeFormData);
+    console.log('📊 [LegalTextForm] Nombre de champs remplis:', filledFieldsCount);
+    
     toast({
       title: "Formulaire rempli par OCR",
       description: `${filledFieldsCount} champs ont été remplis automatiquement. Redirection vers le formulaire...`,
     });
     
-    // Redirection automatique vers l'onglet formulaire après un court délai
+    // Redirection vers l'onglet formulaire avec un petit délai pour permettre aux données de se propager
+    console.log('🔄 [LegalTextForm] Basculement vers le mode manuel...');
     setTimeout(() => {
       setInputMethod('manual'); // Basculer vers le mode manuel pour afficher le formulaire
-    }, 1500);
+    }, 500);
   };
 
   // Process OCR data when received
@@ -266,7 +274,6 @@ export function LegalTextFormEnhanced({
     if (ocrData) {
       console.log('🎯 [LegalTextFormEnhanced] Traitement des données OCR reçues:', ocrData);
       handleOCRFormDataExtracted(ocrData);
-      setInputMethod('manual'); // Switch to manual mode to show filled form
     }
   }, [ocrData]);
 
