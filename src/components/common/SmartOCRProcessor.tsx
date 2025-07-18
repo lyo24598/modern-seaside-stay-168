@@ -61,10 +61,23 @@ export function SmartOCRProcessor({
       console.log('📤 [SmartOCRProcessor] Envoi des données vers le formulaire parent');
       console.log('🔍 [SmartOCRProcessor] Type de document:', extractedData.documentType);
       console.log('📝 [SmartOCRProcessor] Données formulaire:', extractedData.formData);
-      onFormDataExtracted(extractedData);
+      console.log('📊 [SmartOCRProcessor] Nombre de champs dans formData:', Object.keys(extractedData.formData).length);
+      console.log('🏷️ [SmartOCRProcessor] Champs disponibles:', Object.keys(extractedData.formData).join(', '));
+      
+      // Appel de la fonction callback
+      try {
+        onFormDataExtracted(extractedData);
+        console.log('✅ [SmartOCRProcessor] Callback onFormDataExtracted appelé avec succès');
+      } catch (error) {
+        console.error('❌ [SmartOCRProcessor] Erreur lors de l\'appel du callback:', error);
+      }
+      
+      // Fermer le scanner après un petit délai pour permettre au parent de traiter
       if (onClose) {
-        console.log('🔒 [SmartOCRProcessor] Fermeture du scanner');
-        onClose();
+        console.log('🔒 [SmartOCRProcessor] Fermeture du scanner dans 100ms');
+        setTimeout(() => {
+          onClose();
+        }, 100);
       }
     } else {
       console.warn('⚠️ [SmartOCRProcessor] Aucune donnée extraite disponible');

@@ -17,12 +17,23 @@ export function LegalTextFormOCRSection({
   
   const handleOCRFormDataExtracted = (data: { documentType: 'legal' | 'procedure', formData: Record<string, any> }) => {
     console.log('🎯 [LegalTextFormOCRSection] Données OCR extraites:', data);
+    console.log('📋 [LegalTextFormOCRSection] Type de document:', data.documentType);
+    console.log('📋 [LegalTextFormOCRSection] Nombre de champs:', Object.keys(data.formData).length);
     
-    // Fermer le scanner OCR
-    onShowOCRScanner(false);
+    // Passer les données au parent AVANT de fermer le scanner
+    try {
+      console.log('📤 [LegalTextFormOCRSection] Transmission des données au parent...');
+      onOCRFormDataExtracted(data);
+      console.log('✅ [LegalTextFormOCRSection] Données transmises avec succès');
+    } catch (error) {
+      console.error('❌ [LegalTextFormOCRSection] Erreur lors de la transmission:', error);
+    }
     
-    // Passer les données au parent
-    onOCRFormDataExtracted(data);
+    // Fermer le scanner OCR après transmission
+    setTimeout(() => {
+      console.log('🔒 [LegalTextFormOCRSection] Fermeture du scanner');
+      onShowOCRScanner(false);
+    }, 100);
   };
 
   return (
