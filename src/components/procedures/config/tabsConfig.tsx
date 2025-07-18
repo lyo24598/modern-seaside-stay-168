@@ -57,17 +57,6 @@ export function getTabsConfig({
             )
           },
           { 
-            value: 'enrichment', 
-            label: 'Alimentation', 
-            content: (
-              <EnrichmentTab 
-                onAddProcedure={onAddProcedure}
-                onOCRTextExtracted={onOCRTextExtracted}
-                onOCRDataExtracted={onOCRDataExtracted}
-              />
-            )
-          },
-          { 
             value: 'timeline', 
             label: 'Timeline des procédures', 
             content: <TimelineTab />

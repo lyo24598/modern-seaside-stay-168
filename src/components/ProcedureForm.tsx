@@ -162,15 +162,46 @@ export function ProcedureForm({ onClose, onSubmit, ocrData }: ProcedureFormProps
     const mappedData: any = mapOCRDataToForm(data.formData, 'procedure');
     console.log('📋 [ProcedureForm] Données mappées:', mappedData);
     
-    // Préparation des données complètes pour le formulaire
-    const completeFormData: any = {
-      ...mappedData,
-      // S'assurer que les champs essentiels sont définis
-      name: mappedData.name || mappedData.title || 'Procédure extraite par OCR',
-      type: mappedData.type || 'Demande',
-      description: mappedData.description || mappedData.content || '',
-      sector: mappedData.sector || 'Commerce'
-    };
+    // Préparation des données complètes pour le formulaire avec mapping intelligent
+    const completeFormData: any = { ...mappedData };
+    
+    // Mapping intelligent et robuste pour le nom de la procédure
+    if (!completeFormData.procedureName) {
+      completeFormData.procedureName = mappedData.titre || mappedData.title || mappedData.name || 
+                                      mappedData.nom || mappedData.intitule || mappedData.denomination || 
+                                      mappedData.libelle || '';
+      
+      // Si toujours vide, extraire du contenu
+      if (!completeFormData.procedureName && (mappedData.content || mappedData.contenu || mappedData.text)) {
+        const content = mappedData.content || mappedData.contenu || mappedData.text;
+        const patterns = [
+          /(?:titre|objet|procédure|sujet|intitulé)\s*:?\s*([^\n\r]{10,200})/i,
+          /^([^\n\r]{20,150})\s*(?:\n|\r)/m,
+          /(?:procédure|démarche|formalité)\s+(?:de|pour|relative|concernant)\s+([^\n\r]{10,150})/i,
+          /(?:demande|dossier|formulaire)\s+(?:de|pour)\s+([^\n\r]{10,120})/i
+        ];
+        
+        for (const pattern of patterns) {
+          const match = content.match(pattern);
+          if (match && match[1]) {
+            completeFormData.procedureName = match[1].trim();
+            break;
+          }
+        }
+      }
+    }
+    
+    // Description améliorée
+    if (!completeFormData.description) {
+      completeFormData.description = mappedData.description || mappedData.contenu || 
+                                    mappedData.content || mappedData.text || mappedData.objet || 
+                                    mappedData.details || '';
+    }
+    
+    // S'assurer que les champs essentiels sont définis
+    if (!completeFormData.procedureName) completeFormData.procedureName = 'Procédure extraite par OCR';
+    if (!completeFormData.procedureType) completeFormData.procedureType = 'Demande';
+    if (!completeFormData.sectorAdministration) completeFormData.sectorAdministration = 'Commerce';
 
     // Sélectionner automatiquement une catégorie si disponible
     if (!formData.procedureCategory && uniqueProcedureForms.length > 0) {

@@ -120,7 +120,28 @@ export function LegalTextFormEnhanced({
       switch (field.name) {
         case 'titre':
         case 'title':
-          fieldValue = mappedData.title || mappedData.titre || '';
+          // Essayer plusieurs variations possibles avec priorité aux données extraites
+          fieldValue = mappedData.titre || mappedData.title || mappedData.name || mappedData.nom || 
+                      mappedData.intitule || mappedData.denomination || mappedData.libelle || '';
+          // Si toujours vide, essayer d'extraire du contenu avec patterns plus robustes
+          if (!fieldValue && (mappedData.content || mappedData.contenu || mappedData.text)) {
+            const content = mappedData.content || mappedData.contenu || mappedData.text;
+            // Patterns multiples pour détecter le titre
+            const patterns = [
+              /(?:titre|objet|sujet|intitulé)\s*:?\s*([^\n\r]{10,200})/i,
+              /^([^\n\r]{20,150})\s*(?:\n|\r)/m,
+              /(?:décret|arrêté|loi|ordonnance)\s+(?:n°|numéro)?\s*[\d\-\/]*\s+(?:du|en date)\s+[\d\/\-]+\s+(?:relatif|portant|fixant)\s+([^\n\r]{10,150})/i,
+              /(?:concernant|relative?|portant sur)\s+([^\n\r]{10,150})/i
+            ];
+            
+            for (const pattern of patterns) {
+              const match = content.match(pattern);
+              if (match && match[1]) {
+                fieldValue = match[1].trim();
+                break;
+              }
+            }
+          }
           break;
           
         case 'numero_texte':
