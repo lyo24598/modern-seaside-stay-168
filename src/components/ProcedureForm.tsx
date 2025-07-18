@@ -263,8 +263,13 @@ export function ProcedureForm({ onClose, onSubmit, ocrData }: ProcedureFormProps
     
     toast({
       title: "Formulaire rempli par OCR",
-      description: `${filledFieldsCount} champs ont été remplis automatiquement. Formulaire prêt à être utilisé.`,
+      description: `${filledFieldsCount} champs ont été remplis automatiquement. Redirection vers le formulaire...`,
     });
+    
+    // Redirection automatique vers l'onglet formulaire après un court délai
+    setTimeout(() => {
+      setInputMethod('manual'); // Basculer vers le mode manuel pour afficher le formulaire
+    }, 1500);
   };
 
   const handleAutoFill = () => {
