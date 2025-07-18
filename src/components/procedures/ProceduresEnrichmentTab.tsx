@@ -3,49 +3,51 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Upload, Wand2, Database, Scan } from 'lucide-react';
-import { OCRScanner } from '@/components/common/OCRScanner';
+import { SmartOCRProcessor } from '@/components/common/SmartOCRProcessor';
 import { useGlobalActions } from '@/hooks/useGlobalActions';
 
 interface ProceduresEnrichmentTabProps {
   onAddProcedure: () => void;
   onOCRTextExtracted?: (text: string) => void;
+  onOCRDataExtracted?: (data: { documentType: 'legal' | 'procedure', formData: Record<string, any> }) => void;
 }
 
-export function ProceduresEnrichmentTab({ onAddProcedure, onOCRTextExtracted }: ProceduresEnrichmentTabProps) {
+export function ProceduresEnrichmentTab({ onAddProcedure, onOCRTextExtracted, onOCRDataExtracted }: ProceduresEnrichmentTabProps) {
   const [showOCRScanner, setShowOCRScanner] = useState(false);
   const actions = useGlobalActions();
 
-  const handleOCRExtracted = (text: string) => {
-    console.log('Texte OCR extrait pour procédure:', text);
-    if (onOCRTextExtracted) {
-      onOCRTextExtracted(text);
+  const handleSmartOCRDataExtracted = (data: { documentType: 'legal' | 'procedure', formData: Record<string, any> }) => {
+    console.log('🎯 [ProceduresEnrichmentTab] Données OCR extraites:', data);
+    console.log('📋 [ProceduresEnrichmentTab] Type de document:', data.documentType);
+    console.log('📋 [ProceduresEnrichmentTab] Nombre de champs:', Object.keys(data.formData).length);
+    
+    // Passer les données au parent AVANT de fermer le scanner
+    try {
+      console.log('📤 [ProceduresEnrichmentTab] Transmission des données au parent...');
+      if (onOCRDataExtracted) {
+        onOCRDataExtracted(data);
+      }
+      console.log('✅ [ProceduresEnrichmentTab] Données transmises avec succès');
+    } catch (error) {
+      console.error('❌ [ProceduresEnrichmentTab] Erreur lors de la transmission:', error);
     }
-    setShowOCRScanner(false);
+    
+    // Fermer le scanner après transmission
+    setTimeout(() => {
+      console.log('🔒 [ProceduresEnrichmentTab] Fermeture du scanner');
+      setShowOCRScanner(false);
+    }, 100);
   };
 
   const handleScanOCRClick = () => {
-    // Rediriger vers le formulaire de procédure avec l'onglet OCR actif
-    console.log('Redirection vers onglet OCR du formulaire de procédure');
-    
-    // Dispatch event to open procedure form with OCR tab active
-    const event = new CustomEvent('open-procedure-form-with-ocr');
-    window.dispatchEvent(event);
-    
-    // Trigger the onAddProcedure to open the form
-    onAddProcedure();
-    
-    // After a small delay, activate the OCR tab
-    setTimeout(() => {
-      const ocrTabEvent = new CustomEvent('activate-ocr-tab');
-      window.dispatchEvent(ocrTabEvent);
-    }, 100);
+    setShowOCRScanner(true);
   };
 
   if (showOCRScanner) {
     return (
-      <OCRScanner
+      <SmartOCRProcessor
         title="Scanner un document de procédure"
-        onTextExtracted={handleOCRExtracted}
+        onFormDataExtracted={handleSmartOCRDataExtracted}
         onClose={() => setShowOCRScanner(false)}
       />
     );
